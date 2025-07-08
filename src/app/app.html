@@ -1,0 +1,18 @@
+<h1>Angular FabricJS starter</h1>
+
+<canvas id="fabric-canvas" width="800" height="400" style="border: 1px solid black;"></canvas>
+
+<button (click)="addShape('circle')">Add circle</button>
+<button (click)="addShape('rectangle')">Add rectangle</button>
+<button (click)="addShape('text')">Add text</button>
+<br>
+
+<button (click)="changeColor()" [disabled]="selectedObjects.length === 0">Change fill color of selected object</button>
+
+
+<p>Current active objects: {{selectedObjects}}</p>
+
+<p>Press 'd' on a selected shape to delete it!</p>
+
+<p>Logs:</p>
+<pre>{{logs}}</pre>
