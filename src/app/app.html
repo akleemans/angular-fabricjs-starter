@@ -1,18 +1,40 @@
-<h1>Angular FabricJS starter</h1>
+<h1>Angular + FabricJS starter</h1>
 
-<canvas id="fabric-canvas" width="800" height="400" style="border: 1px solid black;"></canvas>
+<div class="canvas-container">
+  <canvas id="fabric-canvas" width="800" height="400"></canvas>
+</div>
 
-<button (click)="addShape('circle')">Add circle</button>
-<button (click)="addShape('rectangle')">Add rectangle</button>
-<button (click)="addShape('text')">Add text</button>
-<br>
+@if (isDrawingNewPolygon) {
+  <p><b>Double click to finish drawing Polygon.</b></p>
+}
 
-<button (click)="changeColor()" [disabled]="selectedObjects.length === 0">Change fill color of selected object</button>
+<div class="row">
+  <span>Add new object: </span>
+  <button (click)="addExampleShape('circle')">Add circle</button>
+  <button (click)="addExampleShape('rectangle')">Add rectangle</button>
+  <button (click)="addExampleShape('text')">Add text</button>
+  <button (click)="addExampleShape('polygon')">Add polygon</button>
+</div>
 
+<div class="row">
+  <button (click)="changeColor()" [disabled]="selectedObjects.length === 0">Change fill color of selected object to:
+  </button>
+  <select name="colors" [(ngModel)]="activeColor">
+    <option value="yellow">Yellow</option>
+    <option value="purple">Purple</option>
+    <option value="blue">Blue</option>
+    <option value="black">Black</option>
+    <option value="white">White</option>
+  </select>
+</div>
 
-<p>Current active objects: {{selectedObjects}}</p>
+<div class="row">
+  <button (click)="drawNewPolygon()">Draw new polygon</button>
+  <button (click)="editPolygon()" [disabled]="!isPolygonSelected">Edit polygon (or double click on Polygon)</button>
+  <button (click)="deleteObjects()" [disabled]="selectedObjects.length === 0">Delete objects (or press 'd')</button>
+</div>
 
-<p>Press 'd' on a selected shape to delete it!</p>
+<p>Current active objects: {{ selectedObjects.length === 0 ? 'None' : selectedObjects }}</p>
 
 <p>Logs:</p>
-<pre>{{logs}}</pre>
+<pre class="logs">{{ logs }}</pre>
