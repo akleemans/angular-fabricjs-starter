@@ -1,7 +1,7 @@
 <h1>Angular + FabricJS starter</h1>
 
 <div class="canvas-container">
-  <canvas id="fabric-canvas" width="800" height="400"></canvas>
+  <canvas #fabricCanvas id="fabric-canvas" width="800" height="400"></canvas>
 </div>
 
 @if (isDrawingNewPolygon) {
@@ -10,14 +10,14 @@
 
 <div class="row">
   <span>Add new object: </span>
-  <button (click)="addExampleShape('circle')">Add circle</button>
-  <button (click)="addExampleShape('rectangle')">Add rectangle</button>
-  <button (click)="addExampleShape('text')">Add text</button>
-  <button (click)="addExampleShape('polygon')">Add polygon</button>
+  <button (click)="addExampleShape('circle')" [disabled]="isDrawingNewPolygon">Add circle</button>
+  <button (click)="addExampleShape('rectangle')" [disabled]="isDrawingNewPolygon">Add rectangle</button>
+  <button (click)="addExampleShape('text')" [disabled]="isDrawingNewPolygon">Add text</button>
+  <button (click)="addExampleShape('polygon')" [disabled]="isDrawingNewPolygon">Add polygon</button>
 </div>
 
 <div class="row">
-  <button (click)="changeColor()" [disabled]="selectedObjects.length === 0">Change fill color of selected object to:
+  <button (click)="changeColor()" [disabled]="selectedObjects.length === 0 || isDrawingNewPolygon">Change fill color of selected object to:
   </button>
   <select name="colors" [(ngModel)]="activeColor">
     <option value="yellow">Yellow</option>
@@ -29,9 +29,9 @@
 </div>
 
 <div class="row">
-  <button (click)="drawNewPolygon()">Draw new polygon</button>
-  <button (click)="editPolygon()" [disabled]="!isPolygonSelected">Edit polygon (or double click on Polygon)</button>
-  <button (click)="deleteObjects()" [disabled]="selectedObjects.length === 0">Delete objects (or press 'd')</button>
+  <button (click)="drawNewPolygon()" [disabled]="isDrawingNewPolygon">Draw new polygon</button>
+  <button (click)="editPolygon()" [disabled]="!isPolygonSelected || isDrawingNewPolygon">Edit orange polygon (or double click on Polygon)</button>
+  <button (click)="deleteObjects()" [disabled]="selectedObjects.length === 0 || isDrawingNewPolygon">Delete objects (or press 'd')</button>
 </div>
 
 <p>Current active objects: {{ selectedObjects.length === 0 ? 'None' : selectedObjects }}</p>
