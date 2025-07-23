@@ -2,12 +2,16 @@
 
 Angular 20 + Fabric 6 starter.
 
-Example functionality:
+[**See the live version here!**](https://akleemans.github.io/angular-fabricjs-starter/)
 
-* Adding objects to the canvas (circle, rectangle, text)
-* Listening to FabricJS callbacks (selection)
-* Updating fabricJS objects from Angular
-* Listening to key presses & delete objects from canvas
+Functionality:
+
+* Adding objects to the canvas (circle, rectangle, polygon, text) programmatically
+* Listening to FabricJS callbacks (selection, double click)
+* Updating fabricJS objects from Angular component
+* Listen to key presses & propagate to Fabric (delete objects from canvas)
+* Edit Polygons with controls for editing (adapted from [here](https://fabricjs.com/demos/poly-controls/))
+* Create Polygons drawing on the canvas (adapted from [here](https://jsfiddle.net/77vg88mc/34/))
 
 ### Run
 

@@ -29,7 +29,7 @@
 </div>
 
 <div class="row">
-  <button (click)="drawNewPolygon()" [disabled]="isDrawingNewPolygon">Draw new polygon</button>
+  <button (click)="drawNewPolygon()" [disabled]="isDrawingNewPolygon">Draw new polyline</button>
   <button (click)="editPolygon()" [disabled]="!isPolygonSelected || isDrawingNewPolygon">Edit orange polygon (or double click on Polygon)</button>
   <button (click)="deleteObjects()" [disabled]="selectedObjects.length === 0 || isDrawingNewPolygon">Delete objects (or press 'd')</button>
 </div>

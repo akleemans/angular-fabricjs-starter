@@ -15,18 +15,12 @@ export class App implements AfterViewInit {
   protected selectedObjects: FabricObject[] = [];
   protected activeColor = 'yellow';
   protected isEditingPolygon = false;
-  protected isDrawingNewPolygon = false;
   protected isPolygonSelected = false;
 
   // Properties for Polygon draw mode
-  protected drawingObject = {type: "", background: "", border: ""};
-  protected roof?: Polyline;
-  protected roofPoints: Point[] = [];
-  protected lines: Line[] = [];
+  protected isDrawingNewPolygon = false;
+  protected polylinePoints: Point[] = [];
   protected currentLine?: Line;
-  protected lineCounter = 0;
-  // protected x = 0;
-  // protected y = 0;
 
   @ViewChild('fabricCanvas')
   public canvasElement?: ElementRef<HTMLCanvasElement>;
@@ -51,8 +45,8 @@ export class App implements AfterViewInit {
 
     // Setup callbacks for drawing Polygon
     this.canvas.on('mouse:dblclick', () => this.doubleClickHandler());
-    this.canvas.on('mouse:down',(options) => this.mouseDownHandler(options));
-    this.canvas.on('mouse:move',(options) => this.mouseMoveHandler(options));
+    this.canvas.on('mouse:down', (options) => this.mouseDownHandler(options));
+    this.canvas.on('mouse:move', (options) => this.mouseMoveHandler(options));
 
     // Add some shapes at startup
     this.addExampleShape('circle', false);
@@ -69,34 +63,6 @@ export class App implements AfterViewInit {
     const x = options.e.pageX - (offsetLeft ?? 0);
     const y = options.e.pageY - (offsetTop ?? 0);
     return [x, y];
-  }
-
-  public makeRoof(roofPoints: any) {
-    let left = this.findLeftPaddingForRoof(roofPoints);
-    let top = this.findTopPaddingForRoof(roofPoints);
-    console.log('makeRoof(), left:', left, 'top:', top);
-    roofPoints.push(new Point(roofPoints[0].x, roofPoints[0].y));
-    return new Polyline(roofPoints, {fill: "rgba(0,0,0,0)", stroke: "#58c", left, top,});
-  }
-
-  public findTopPaddingForRoof(roofPoints: any) {
-    var result = 999999;
-    for (var f = 0; f < this.lineCounter; f++) {
-      if (roofPoints[f].y < result) {
-        result = roofPoints[f].y;
-      }
-    }
-    return Math.abs(result);
-  }
-
-  public findLeftPaddingForRoof(roofPoints: any) {
-    var result = 999999;
-    for (var i = 0; i < this.lineCounter; i++) {
-      if (roofPoints[i].x < result) {
-        result = roofPoints[i].x;
-      }
-    }
-    return Math.abs(result);
   }
 
   public addExampleShape(shape: 'circle' | 'rectangle' | 'text' | 'polygon', log = true): void {
@@ -130,8 +96,6 @@ export class App implements AfterViewInit {
 
   public drawNewPolygon(): void {
     this.isDrawingNewPolygon = true;
-    // TODO
-    this.drawingObject.type = "roof";
   }
 
   public editPolygon(): void {
@@ -150,10 +114,9 @@ export class App implements AfterViewInit {
     this.logs = message + '\n' + this.logs;
   }
 
-
   // -----------  FabricJS callback handlers -----------
 
-  public selectionChangedHandler(): void {
+  private selectionChangedHandler(): void {
     this.selectedObjects = this.canvas.getActiveObjects();
     this.log(`Selection updated, selectedObjects: ${this.selectedObjects}`);
 
@@ -179,45 +142,46 @@ export class App implements AfterViewInit {
   }
 
   private doubleClickHandler(): void {
-      if (!this.isDrawingNewPolygon) {
-        return;
-      }
-      this.drawingObject.type = "";
-      const temporaryLines = this.canvas.getObjects().filter(object => object.isType('Line'));
-      this.canvas.remove(...temporaryLines);
+    if (!this.isDrawingNewPolygon) {
+      return;
+    }
+    const temporaryLines = this.canvas.getObjects().filter(object => object.isType('Line'));
+    this.canvas.remove(...temporaryLines);
 
-      this.roof = this.makeRoof(this.roofPoints);
-      this.canvas.add(this.roof);
-      this.canvas.renderAll();
+    const polyline = this.createPolyline(this.polylinePoints);
+    this.canvas.add(polyline);
+    this.canvas.renderAll();
 
-      // Clean up
-      this.roofPoints = [];
-      this.lines = [];
-      this.lineCounter = 0;
-      this.isDrawingNewPolygon = false;
+    // Clean up
+    this.polylinePoints = [];
+    this.isDrawingNewPolygon = false;
+  }
+
+  private createPolyline(points: any): Polyline {
+    // Close polyline shape
+    points.push(new Point(points[0].x, points[0].y));
+    return new Polyline(points, {fill: 'rgba(0,0,0,0)', stroke: 'blue'});
   }
 
   private mouseDownHandler(options: any): void {
-      if (this.drawingObject.type == "roof") {
-        this.canvas.selection = false;
-        const [x, y] = this.setStartingPoint(options); // set x,y
-        this.roofPoints.push(new Point(x, y));
-        let points: any = [x, y, x, y];
-        const line = new Line(points, {strokeWidth: 3, selectable: false, stroke: "red", originX: x, originY: y});
-        this.lines.push(line);
-        this.canvas.add(line);
-        this.lineCounter++;
-        this.canvas.on('mouse:up', () => {
-          this.canvas.selection = true;
-        });
-      }
+    if (this.isDrawingNewPolygon) {
+      this.canvas.selection = false;
+      const [x, y] = this.setStartingPoint(options); // set x,y
+      this.polylinePoints.push(new Point(x, y));
+      let points: any = [x, y, x, y];
+      const line = new Line(points, {strokeWidth: 3, selectable: false, stroke: "red", originX: x, originY: y});
+      this.currentLine = line;
+      this.canvas.add(line);
+      this.canvas.on('mouse:up', () => {
+        this.canvas.selection = true;
+      });
+    }
   }
 
   private mouseMoveHandler(options: any): void {
-    if (this.lines.length > 0 && this.drawingObject.type == 'roof') {
+    if (this.currentLine && this.isDrawingNewPolygon) {
       const [x, y] = this.setStartingPoint(options);
-      this.lines[this.lineCounter - 1].set({x2: x, y2: y});
-      // this.canvas.add(this.lines[this.lineCounter - 1]);
+      this.currentLine?.set({x2: x, y2: y});
       this.canvas.requestRenderAll();
     }
   }
